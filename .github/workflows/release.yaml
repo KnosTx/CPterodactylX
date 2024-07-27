@@ -28,16 +28,17 @@ jobs:
       - name: Create release branch and bump version
         env:
           REF: ${{ github.ref }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
           BRANCH=release/${REF:10}
           git config --local user.email "ci@pterodactyl.io"
           git config --local user.name "Pterodactyl CI"
           git checkout -b $BRANCH
-          git push -u origin $BRANCH
+          git push -u https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $BRANCH
           sed -i "s/    'version' => 'canary',/    'version' => '${REF:11}',/" config/app.php
           git add config/app.php
           git commit -m "ci(release): bump version"
-          git push
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $BRANCH
 
       - name: Create release archive
         run: |
@@ -60,7 +61,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           draft: true
           prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
@@ -70,7 +71,7 @@ jobs:
         id: upload-release-archive
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: panel.tar.gz
@@ -81,7 +82,7 @@ jobs:
         id: upload-release-checksum
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./checksum.txt
