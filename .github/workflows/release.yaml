@@ -34,11 +34,11 @@ jobs:
           git config --local user.email "ci@pterodactyl.io"
           git config --local user.name "Pterodactyl CI"
           git checkout -b $BRANCH
-          git push -u https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $BRANCH
+          git push -u https://x-access-token:${TOKEN}@github.com/${{ github.repository }} $BRANCH
           sed -i "s/    'version' => 'canary',/    'version' => '${REF:11}',/" config/app.php
           git add config/app.php
           git commit -m "ci(release): bump version"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $BRANCH
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} $BRANCH
 
       - name: Create release archive
         run: |
